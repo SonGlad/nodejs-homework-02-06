@@ -9,11 +9,18 @@ const { register,
     getCurrent,
     logout,
     updateAvatar,
+    verifyEmail,
+    resendVerifyEmail,
 } = require("../../controllers/auth/index")
 
 
 router.post("/register", validateBody(
     schemas.registerSchema), register.register);
+
+router.get("/verify/:verificationToken", verifyEmail.verifyEmail);
+
+router.post("/verify", validateBody(
+    schemas.verifySchema), resendVerifyEmail.resendVerifyEmail );
 
 router.post("/login", validateBody(
     schemas.loginSchema), login.login);
