@@ -8,9 +8,8 @@ const getById = async (req, res) => {
   const result = await Contact.findOne({ _id: contactId, owner });
   // const result = await Contact.findById(contactId);
 
-
   if(!result) {
-    throw HttpError(404, "Not found");
+    throw HttpError(404, "Contact was not found");
   }
 
   res.status(200).send(result);

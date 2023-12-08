@@ -15,8 +15,11 @@ const login = async(req, res) => {
         throw HttpError(401, "Email or Password invalid");
     }
 
-    const passwordCompare = await bcrypt.compare(password, user.password);
+    if(!user.verify) {
+        throw HttpError(401, "Email is not verify")
+    }
 
+    const passwordCompare = await bcrypt.compare(password, user.password);
     if(!passwordCompare){
         throw HttpError(401, "Email or Password invalid");
     }
@@ -25,7 +28,12 @@ const login = async(req, res) => {
     const token = jwt.sign(payload, SECRET_KEY, {expiresIn: "23h"});
     await User.findByIdAndUpdate(user._id, {token});
 
-    res.send({token});
+    res.send({
+        token,
+        email: user.email,
+        username: user.username,
+        avatarURL: user.avatarURL,
+    });
 };
 
 

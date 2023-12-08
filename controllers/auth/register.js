@@ -1,7 +1,12 @@
 const bcrypt = require("bcryptjs");
 const gravatar = require("gravatar");
 const { User } = require("../../models/user");
-const {HttpError, ctrlWrapper} = require("../../helpers/index");
+const {HttpError, ctrlWrapper, sendEmail} = require("../../helpers/index");
+const crypto = require("node:crypto");
+require("dotenv").config();
+
+
+const {BASE_URL} = process.env;
 
 
 const register = async(req, res) => {
@@ -18,7 +23,16 @@ const register = async(req, res) => {
         r: 'g',
         d: 'identicon'
     });
-    const newUser = await User.create({...req.body, password: hashPassword, avatarURL });
+    const verificationToken = crypto.randomUUID();
+    const newUser = await User.create({...req.body, password: hashPassword, avatarURL, verificationToken });
+
+    const verifyEmail = {
+        to: email,
+        subject: "Verify email",
+        html: `<a target="_blank" href="${BASE_URL}/users/verify/${verificationToken}">Click to verify email</a>`
+    }
+    await sendEmail(verifyEmail);
+
 
     res.status(201).send({
         username: newUser.username,
