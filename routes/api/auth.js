@@ -11,6 +11,7 @@ const { register,
     updateAvatar,
     verifyEmail,
     resendVerifyEmail,
+    updateSubscription
 } = require("../../controllers/auth/index")
 
 
@@ -24,6 +25,9 @@ router.post("/verify", validateBody(
 
 router.post("/login", validateBody(
     schemas.loginSchema), login.login);
+
+router.patch("/subscription", authenticate, validateBody(
+    schemas.updateSubscriptionSchema), updateSubscription.updateSubscription);
 
 router.get("/current", authenticate, getCurrent.getCurrent);
 

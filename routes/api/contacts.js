@@ -7,7 +7,7 @@ const {
     getById, 
     addNewContact, 
     updateById, 
-    updateFavoriteById, 
+    updateFavoriteById,
     deleteById
 } = require("../../controllers/contacts/index");
 const {validateBody, isValidId, authenticate} = require("../../middlewares/index");
