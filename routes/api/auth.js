@@ -11,7 +11,8 @@ const { register,
     updateAvatar,
     verifyEmail,
     resendVerifyEmail,
-    updateSubscription
+    updateSubscription,
+    forgotPassword
 } = require("../../controllers/auth/index")
 
 
@@ -34,6 +35,8 @@ router.get("/current", authenticate, getCurrent.getCurrent);
 router.post("/logout", authenticate, logout.logout);
 
 router.patch("/avatars", authenticate, upload.single("avatar"), updateAvatar.updateAvatar);
+
+router.post("/forgotPassword", validateBody(schemas.userResetPasswordSchema), forgotPassword.forgotPassword);
 
 
 

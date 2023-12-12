@@ -74,7 +74,19 @@ const verifySchema = Joi.object({
 });
 
 
-const schemas = { registerSchema, loginSchema, updateSubscriptionSchema, verifySchema};
+const userResetPasswordSchema = Joi.object({
+    email: Joi.string().pattern(emailRegexp).required(),
+    // newPassword: Joi.string().min(6).required(),
+});
+
+
+const schemas = { 
+    registerSchema, 
+    loginSchema, 
+    updateSubscriptionSchema, 
+    verifySchema, 
+    userResetPasswordSchema
+};
 const User = model("users", userSchema);
 
 
