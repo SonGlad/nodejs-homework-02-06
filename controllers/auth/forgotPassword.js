@@ -1,43 +1,36 @@
-const {ctrlWrapper, HttpError, sendEmail} = require("../../helpers/index");
+const { ctrlWrapper, HttpError, sendEmail } = require("../../helpers/index");
 const { User } = require("../../models/user");
-const crypto = require("node:crypto");
 require("dotenv").config();
-
-
-const {BASE_URL} = process.env;
+const bcrypt = require("bcryptjs");
 
 
 const forgotPassword = async (req, res) => {
-    const { email } = req.body;
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+
   
-    const user = await User.findOne({ email });
-    if (!user) {
-      throw HttpError(404, "User not found");
-    }
-  
-    const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetTokenExpiry = Date.now() + 3600000;
-  
-    await User.findByIdAndUpdate(user._id, {resetToken, resetTokenExpiry});
-  
-    // TODO Замінити link
-    const resetPasswordLink = `${BASE_URL}/set-new-password/${resetToken}`;
-  
-    const resetPasswordEmail = {
-      to: email,
-      subject: "Reset Password",
-      html: `<p>You are receiving this email because you (or someone else) has requested the reset of the password for your account.</p>
-              <p>Please click on the following link to reset your password:</p>
-              <a href="${resetPasswordLink}" target="_blank">${resetPasswordLink}</a>
-              <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
-    };
-  
-    await sendEmail(resetPasswordEmail);
-  
-    res.send({ message: "Reset password email sent", resetToken });
+  const temporaryPassword = Math.random().toString(36).slice(-8);
+  const hashedTemporaryPassword = await bcrypt.hash(temporaryPassword, 10);
+  await User.findByIdAndUpdate(user._id, { password: hashedTemporaryPassword });
+
+
+  const resetPasswordEmail = {
+    to: email,
+    subject: "Temporary Password",
+    text: `Your temporary password is: ${temporaryPassword}`,
+  };
+
+  await sendEmail(resetPasswordEmail);
+
+  res.send({ message: "Temporary password sent" });
 };
 
 
 module.exports = {
-    forgotPassword: ctrlWrapper(forgotPassword)
+  forgotPassword: ctrlWrapper(forgotPassword),
 };
+
